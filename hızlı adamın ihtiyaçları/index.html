@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Date Daveti</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #3f000c, #6a0017, #2b0008);
+      color: #fff7f8;
+      overflow: hidden;
+    }
+
+    .page {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 16px;
+    }
+
+    .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .heart {
+      position: absolute;
+      color: rgba(255, 210, 220, 0.28);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0) rotate(-8deg);
+      }
+      50% {
+        transform: translate(8px, 18px) rotate(8deg);
+      }
+    }
+
+    .card {
+      position: relative;
+      z-index: 2;
+      width: min(92vw, 560px);
+      min-height: 430px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 210, 220, 0.14);
+      border-radius: 32px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(14px);
+      padding: 36px 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: cardIn 0.42s ease both;
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .photo {
+      width: 170px;
+      height: 170px;
+      object-fit: contain;
+      border-radius: 24px;
+      margin-bottom: 22px;
+      background: rgba(255,255,255,0.06);
+      padding: 8px;
+      box-shadow: 0 16px 35px rgba(0, 0, 0, 0.22);
+    }
+
+    h1, h2 {
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+    }
+
+    h1 {
+      font-size: clamp(28px, 6vw, 40px);
+      font-weight: 800;
+    }
+
+    h2 {
+      font-size: clamp(26px, 5.6vw, 40px);
+      font-weight: 900;
+    }
+
+    .subtitle {
+      margin-top: 14px;
+      color: #ffd8de;
+      font-size: 15px;
+    }
+
+    .emoji {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .button-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+      position: relative;
+      min-height: 60px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .primary-btn {
+      background: #ffffff;
+      color: #7a1023;
+      padding: 14px 30px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+      transition: 0.2s ease;
+    }
+
+    .primary-btn:hover {
+      transform: scale(1.04);
+    }
+
+    .primary-btn:active {
+      transform: scale(0.97);
+    }
+
+    .no-btn {
+      background: rgba(255,255,255,0.16);
+      color: #fff7f8;
+      padding: 14px 30px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+      transition: 0.25s ease;
+      position: relative;
+    }
+
+    .secondary-btn {
+      background: rgba(255,255,255,0.12);
+      color: #fff7f8;
+      padding: 14px 30px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      transition: 0.2s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255,255,255,0.18);
+      transform: scale(1.04);
+    }
+
+    .dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.28);
+      transition: 0.25s ease;
+    }
+
+    .dot.active {
+      width: 34px;
+      background: #ffffff;
+    }
+
+    .form-box {
+      width: min(100%, 420px);
+      margin-top: 28px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #ffd2dc;
+      margin-bottom: 10px;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.10);
+      color: white;
+      border-radius: 20px;
+      padding: 14px 16px;
+      font-size: 15px;
+      outline: none;
+      margin-bottom: 12px;
+      font-family: inherit;
+    }
+
+    select option {
+      color: #222;
+    }
+
+    textarea {
+      min-height: 98px;
+      resize: none;
+    }
+
+    select:focus,
+    textarea:focus {
+      box-shadow: 0 0 0 5px rgba(255, 210, 220, 0.14);
+    }
+
+    .summary {
+      margin-top: 26px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 26px;
+      padding: 18px 20px;
+      color: #fff7f8;
+      font-size: 15px;
+      line-height: 1.7;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .summary strong {
+      color: #ffd2dc;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts" id="hearts"></div>
+
+  <main class="page">
+    <!-- 1. SAYFA -->
+    <section class="card" id="screen-0">
+      <img class="photo" id="photo-main" src="gorsel.png" alt="görsel" />
+      <div class="emoji">🙂‍↔️</div>
+      <h1>Benimle date’e çıkar mısın?</h1>
+
+      <div class="button-row">
+        <button class="primary-btn" onclick="goToStep(1)">evet</button>
+        <button class="no-btn" id="noBtn" onclick="moveNoButton()" onmouseenter="moveNoButton()">hayır</button>
+      </div>
+
+      <div class="dots" data-dots="0"></div>
+    </section>
+
+    <!-- 2. SAYFA -->
+    <section class="card hidden" id="screen-1">
+      <img class="photo" id="photo-yes" src="gorsel.png" alt="görsel" />
+      <h2>İki Adımlı Doğrulama</h2>
+      <p class="subtitle">Bu kadar kolay evet dediğine göre bir daha sormam lazım.</p>
+
+      <div class="button-row">
+        <button class="primary-btn" onclick="goToStep(2)">evet</button>
+      </div>
+
+      <div class="dots" data-dots="1"></div>
+    </section>
+
+    <!-- 3. SAYFA -->
+    <section class="card hidden" id="screen-2">
+      <div class="emoji">🌹</div>
+      <h2>O zaman… ne zaman boşsun?</h2>
+
+      <div class="form-box">
+        <label>Bir gün seç</label>
+        <select id="dateSelect" onchange="setDateValue(this.value)">
+          <option value="">Birini seç</option>
+          <option>Yarın</option>
+          <option>Bu cuma</option>
+          <option>Cumartesi öğleden sonra</option>
+          <option>Cumartesi akşamı</option>
+          <option>Pazar</option>
+        </select>
+
+        <textarea id="customDate" placeholder="Ya da istediğin zamanı buraya yaz..." oninput="setDateValue(this.value)"></textarea>
+      </div>
+
+      <div class="button-row">
+        <button class="primary-btn" onclick="goToStep(3)">devam et</button>
+      </div>
+
+      <div class="dots" data-dots="2"></div>
+    </section>
+
+    <!-- FİNAL SAYFASI -->
+    <section class="card hidden" id="screen-3">
+      <img class="photo" id="photo-final" src="gorsel.png" alt="görsel" />
+      <h2>Anlaştık, seni almaya geliyorum 💕</h2>
+
+      <div class="summary">
+        <p><strong>Seçtiğin zaman:</strong> <span id="dateResult">sen ne zaman istersen</span></p>
+      </div>
+
+      <div class="button-row">
+        <button class="primary-btn" onclick="sendAnswersToWhatsApp()">cevabı gönder 💌</button>
+        <button class="secondary-btn" onclick="restartSite()">baştan başla</button>
+      </div>
+
+      <div class="dots" data-dots="3"></div>
+    </section>
+  </main>
+
+  <script>
+    const WHATSAPP_NUMBER = "905459218370";
+
+    let currentStep = 0;
+    let selectedDate = "";
+
+    function createHearts() {
+      const heartsContainer = document.getElementById("hearts");
+      const symbols = ["♥", "♡", "✦", "❀"];
+
+      for (let i = 0; i < 30; i++) {
+        const span = document.createElement("span");
+        span.className = "heart";
+        span.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+        span.style.left = Math.random() * 96 + "%";
+        span.style.top = Math.random() * 95 + "%";
+        span.style.fontSize = 10 + Math.random() * 16 + "px";
+        span.style.animationDelay = Math.random() * 6 + "s";
+        span.style.animationDuration = 4 + Math.random() * 6 + "s";
+        heartsContainer.appendChild(span);
+      }
+    }
+
+    function createDots() {
+      document.querySelectorAll(".dots").forEach((container) => {
+        const activeIndex = Number(container.dataset.dots);
+        container.innerHTML = "";
+
+        for (let i = 0; i < 4; i++) {
+          const dot = document.createElement("span");
+          dot.className = i === activeIndex ? "dot active" : "dot";
+          container.appendChild(dot);
+        }
+      });
+    }
+
+    function goToStep(step) {
+      document.getElementById(`screen-${currentStep}`).classList.add("hidden");
+      currentStep = step;
+      document.getElementById(`screen-${currentStep}`).classList.remove("hidden");
+
+      if (step === 3) {
+        document.getElementById("dateResult").innerText = selectedDate || "sen ne zaman istersen";
+      }
+    }
+
+    function moveNoButton() {
+      const button = document.getElementById("noBtn");
+      const randomX = Math.floor(Math.random() * 170) - 85;
+      const randomY = Math.floor(Math.random() * 90) - 45;
+      const randomRotate = Math.floor(Math.random() * 24) - 12;
+      button.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotate}deg)`;
+    }
+
+    function setDateValue(value) {
+      selectedDate = value.trim();
+    }
+
+    function sendAnswersToWhatsApp() {
+      const dateText = selectedDate || "sen ne zaman istersen";
+      const message = `Date cevabım 💌\n\nSeçtiğim zaman: ${dateText}`;
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+      window.open(whatsappLink, "_blank");
+    }
+
+    function restartSite() {
+      selectedDate = "";
+      document.getElementById("dateSelect").value = "";
+      document.getElementById("customDate").value = "";
+      goToStep(0);
+    }
+
+    createHearts();
+    createDots();
+  </script>
+</body>
+</html>
